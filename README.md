@@ -13,4 +13,4 @@ Declaração de Replicação
 
 6) Script 3 - O script completo utilizado para treinar e avaliar o  XGBoost está disponível no GitHub: (https://github.com/Saulo11340/Public_Resource_Allocation_Analysis/blob/main/xgboost_model_pipeline.ipynb). Ele contém todos os passos necessários para replicar os resultados discutidos neste artigo.
 
-7) Script 4 - O script completo utilizado para otimizar a alocação de recursos orçamentários com Otimização Bayesiana está disponível no GitHub:([ttps://github.com/seuusuario/nomedorepositorio). Ele contém todos os passos necessários para replicar os resultados discutidos no artigo.
+7) Script 4 - O script completo utilizado para otimizar a alocação de recursos orçamentários com Otimização Bayesiana está disponível no GitHub:(https://github.com/Saulo11340/Public_Resource_Allocation_Analysis/blob/main/budget_optimization_pipeline.ipynb). Ele contém todos os passos necessários para replicar os resultados discutidos no artigo.
