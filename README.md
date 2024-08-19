@@ -7,4 +7,4 @@ Declaração de Replicação
 
 3) Dados pré-processados e normalizados. Link: https://github.com/Saulo11340/SPEND_SMARTER/blob/main/Processed_Normalized_Data.csv
 
-Capítulo 4 Behrens, Lion e Viktoria Semenova. "Informação sobre Fraude Eleitoral, Punição e Confiança Política: Evidências de um Experimento de Pesquisa na Colômbia, México e Rússia". Link: https://github.com/Lion-Be/fraud_spillover
+
