@@ -11,6 +11,7 @@ Declaração de Replicação
 
 5) Script 2 - O script utilizado para calcular as estatísticas descritivas dos dados normalizados está disponível no GitHub através do seguinte link: [https://github.com/Saulo11340/Public_Resource_Allocation_Analysis/blob/main/descriptive_statistics_scripts.ipynb). Este script fornece uma visão geral estatística dos dados utilizados na pesquisa.
 
-6) Script 3 - 
+6) Script 3 - O script completo utilizado para treinar e avaliar o  XGBoost está disponível no GitHub: [XGBoost Modeling Pipeline]( https://github.com/Saulo11340/Public_Resource_Allocation_Analysis/blob/main/xgboost_model_pipeline.ipynb). Ele contém todos os passos necessários para replicar os resultados discutidos neste artigo.
+
 
 
