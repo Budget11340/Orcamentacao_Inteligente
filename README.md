@@ -9,7 +9,8 @@ Declaração de Replicação
 
 4) Sript 1 - O script utilizado para normalização dos dados está disponível no GitHub através do seguinte link: [https://github.com/Saulo11340/Public_Resource_Allocation_Analysis/blob/main/data_normalization_script.ipynb). Os leitores são incentivados a consultar e utilizar o script conforme necessário.
 
-5) Script 2 -
+5) Script 2 - O script utilizado para calcular as estatísticas descritivas dos dados normalizados está disponível no GitHub: [Descriptive Statistics Script](https://github.com/seuusuario/nomedorepositorio). Este script fornece uma visão geral estatística dos dados utilizados na pesquisa.
+
 
 6) Script 3 - 
 
