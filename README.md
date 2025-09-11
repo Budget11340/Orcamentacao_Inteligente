@@ -45,7 +45,10 @@ pip install xgboost==1.7.6 optuna==3.6.1 scikit-learn==1.3.2 \
 
 **Raw_Data_Input_Output_Variables.xlsx**
 Planilha base com as séries históricas (despesas por função e indicadores de saída). Fonte primária para preparação/normalização.
-
+**Processed_Normalized_Data.csv**  
+Arquivo intermediário resultante do pré-processamento da planilha bruta.  
+Inclui as 29 funções de despesa (entradas) e os 3 indicadores socioeconômicos (saídas) já padronizados pelo método z-score.  
+Usado como base para gerar dados sintéticos e treinar o modelo XGBoost
 **augmented_dataset.csv**
 Conjunto aumentado: dados originais + sintéticos (ruído gaussiano, bootstrapping e VAE para as entradas), já normalizados.
 Usado para treinar/avaliar o XGBoost e, na otimização, para definir a mediana e o desvio-padrão de cada variável de entrada (limites de busca).
