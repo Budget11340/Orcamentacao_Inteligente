@@ -1,120 +1,135 @@
-# Projeto: Apoio Analítico à Alocação Orçamentária com IA
+```markdown
+# Smart Budgeting (Brazil) — Hybrid AI workflow for exploratory budget allocation
 
-## 📌 Visão geral
-Este repositório implementa um arranjo híbrido para apoio analítico à alocação orçamentária com dados públicos.  
-A solução tem duas etapas:
+This repository implements a **prediction → optimisation** workflow to support **exploratory scenario analysis** for Brazilian federal budget allocation using public, aggregated data. It is designed to **compare allocation scenarios under explicit modelling assumptions** (it does not automate decisions and it does not provide causal or prescriptive recommendations).
 
-1. **Previsão (XGBoost)**  
-   - Treina um modelo multissaída para prever crescimento do PIB, inflação e índice de Gini a partir das 29 funções de despesa.  
-   - Inclui aumento de dados (sintéticos) e avaliação (curva de aprendizado, MSE, R², R² ajustado).  
+## What the workflow does
 
-2. **Otimização (Optuna/TPE)**  
-   - Busca uma configuração de alocação (em torno da mediana histórica ± 1 desvio-padrão) que maximiza:  
+### 1) Prediction (XGBoost)
+- Trains a **multi-output** regression model to predict:
+  - GDP growth
+  - inflation
+  - Gini index
+- Inputs: executed expenditure across **29 budget functions**.
+- Includes **synthetic data augmentation** and model evaluation (learning curve; MSE/RMSE; R² and adjusted R²).
+- Saves artefacts (tables, figures, trained model).
 
-     ```
-     score = (PIB) − (inflação) − (Gini) − (penalidade por desvio do baseline)
-     ```
+### 2) Optimisation (Optuna / TPE)
+- Searches for an allocation vector (within bounds derived from the historical data) that maximises:
 
-🔄 **Reprodutibilidade**: sementes fixadas em `42` (Python/NumPy/TensorFlow/XGBoost).  
-Ainda assim, pequenas variações entre execuções podem ocorrer por paralelismo e ponto flutuante.
+\[
+score = (GDP) - (inflation) - (Gini) - penalty
+\]
 
----
+- Outputs the best allocation found and a figure for the optimised scenario.
 
-## ⚙️ Como reproduzir
-
-### Ambiente
-
-```bash
-pip install -U pip
-pip install xgboost==1.7.6 optuna==3.6.1 scikit-learn==1.3.2 \
-            pandas==2.1.4 numpy==1.24.4 matplotlib==3.8.2 joblib==1.3.2 \
-            tensorflow-cpu==2.13.1 keras==2.13.1
+## Repository structure
 
 ```
 
-## Ordem sugerida de execução
+data/        Input and processed datasets
+notebooks/   Jupyter notebooks (training/evaluation and optimisation)
+outputs/     Generated tables and artefacts (CSV)
+graphs/      Generated figures (PNG)
+model/       Saved trained model(s) (PKL)
 
-**orcamento_ia_xgboost.ipynb**
-→ Gera dados sintéticos, treina o XGBoost, produz métricas/gráficos e salva saved_model.pkl e arquivos de apoio.
+````
 
-**optimize_allocation.ipynb** 
-→ Carrega saved_model.pkl e augmented_dataset.csv, roda a otimização e salva os resultados.
+## Requirements
 
-## 📂 Descrição dos arquivos
-📊 **Dados/Arquivos de entrada**
+- Python 3.10+ recommended
 
-**Raw_Data_Input_Output_Variables.xlsx**
-Planilha base com as séries históricas (despesas por função e indicadores de saída). Fonte primária para preparação/normalização.
-**Processed_Normalized_Data.csv**  
-Arquivo intermediário resultante do pré-processamento da planilha bruta.  
-Inclui as 29 funções de despesa (entradas) e os 3 indicadores socioeconômicos (saídas) já padronizados pelo método z-score.  
-Usado como base para gerar dados sintéticos e treinar o modelo XGBoost
-**augmented_dataset.csv**
-Conjunto aumentado: dados originais + sintéticos (ruído gaussiano, bootstrapping e VAE para as entradas), já normalizados.
-Usado para treinar/avaliar o XGBoost e, na otimização, para definir a mediana e o desvio-padrão de cada variável de entrada (limites de busca).
+Install dependencies (minimum set):
 
-## 📁 Dados/Arquivos de saída / artefatos
+```bash
+pip install -U pip
+pip install pandas numpy matplotlib scikit-learn xgboost optuna joblib tensorflow-cpu keras
+````
 
-**saved_model.pkl** — modelo XGBoost multissaída treinado (previsão de PIB, inflação e Gini).
+## How to reproduce
 
-**comparison_table.csv** — tabela com valores verdadeiros e previstos para cada variável de saída (todas as observações de validação agregadas).
+### Step 1 — Train and evaluate the predictive model
 
-**best_allocation.csv** — linha única com as 29 funções de despesa resultantes da melhor solução encontrada pela otimização (valores padronizados).
+Run:
 
-**original_inputs_descriptive_stats.csv** — estatísticas descritivas (média, desvio-padrão, mínimo e máximo) das entradas originais.
+* `notebooks/01_xgboost_ml.ipynb`
 
-**synthetic_inputs_descriptive_stats.csv** — estatísticas descritivas das entradas sintéticas.
+Expected inputs:
 
-**original_outputs_descriptive_stats.csv** — estatísticas descritivas das saídas originais (PIB, inflação, Gini).
+* `data/Processed_Normalized_Data.csv`
+* (optional) `data/Raw_Data_Input_Output_Variables.xlsx` (source file used to build the processed dataset)
 
-**synthetic_outputs_descriptive_stats.csv** — estatísticas descritivas das saídas sintéticas.
+Main outputs:
 
+* `outputs/augmented_dataset.csv`
+* `outputs/comparison_table.csv`
+* `outputs/original_inputs_descriptive_stats.csv`
+* `outputs/synthetic_inputs_descriptive_stats.csv`
+* `outputs/original_outputs_descriptive_stats.csv`
+* `outputs/synthetic_outputs_descriptive_stats.csv`
+* figures saved under `graphs/`
+* trained model saved under `model/` (e.g., `model/saved_model.pkl`)
 
-## 📒 Notebooks / Scripts
-### 1) **orcamento_ia_xgboost.ipynb**
+### Step 2 — Optimise the allocation scenario
 
-Pipeline de previsão e avaliação:
+Run:
 
-- Lê o dataset normalizado, separa 29 entradas e 3 saídas.
+* `notebooks/02_optuna_optim.ipynb`
 
-- **Geração de dados sintéticos:**
+Inputs:
 
-  1 Ruído gaussiano
+* `model/saved_model.pkl`
+* `outputs/augmented_dataset.csv`
 
-  2 Bootstrapping (reamostragem)
+Outputs:
 
-  3 VAE (aplicado apenas às entradas)
+* `outputs/best_allocation.csv`
+* figures saved under `graphs/` (e.g., optimised allocation plot)
 
-- Concatena originais + sintéticos → augmented_dataset.csv.
+## Data and artefacts
 
-- Treina XGBoost (n_estimators=980; learning_rate=0.002; seed=42) com K-Fold (k=5).
+### `data/` (inputs)
 
-- Calcula MSE, RMSE, R² e R² ajustado (geral e por variável).
+* `Raw_Data_Input_Output_Variables.xlsx`
+  Source spreadsheet containing historical series (expenditure by function and outcome indicators).
+* `Processed_Normalized_Data.csv`
+  Processed modelling dataset with 29 expenditure functions (inputs) and 3 outcomes (outputs), standardised using z-scores.
 
-- Plota/salva comparações True vs. Predicted, gráficos de dispersão e curva de aprendizado.
+### `outputs/` (generated tables)
 
-- Exporta estatísticas descritivas (originais vs. sintéticos) e salva o modelo em saved_model.pkl.
+* `augmented_dataset.csv`
+  Augmented dataset (real + synthetic records).
+* `comparison_table.csv`
+  Observed vs predicted values aggregated from the validation procedure.
+* `best_allocation.csv`
+  Best allocation vector returned by the optimisation step (standardised input scale).
+* `original_*_descriptive_stats.csv` / `synthetic_*_descriptive_stats.csv`
+  Descriptive statistics comparing original vs synthetic inputs/outputs.
 
-### 2) **optimize_allocation.ipynb**
+### `model/` (saved model)
 
-Pipeline de otimização (busca TPE/Optuna):
+* `saved_model.pkl`
+  Trained multi-output XGBoost model saved with `joblib`.
 
-- Carrega saved_model.pkl e augmented_dataset.csv.
+### `graphs/` (figures)
 
-- Define baseline (mediana) e limites por variável: mediana ± 1 desvio-padrão.
+Contains all figures generated by the notebooks (learning curve, observed vs predicted plots, scatter plots, and the optimised allocation figure).
 
-- Função-objetivo:
+## Notes on reproducibility and interpretation
 
-> score = PIB − inflação − Gini − λ·|desvio|, com λ = 0,5
+* The notebooks use fixed random seeds (typically `42`) for key components; small variations may still occur due to parallelism and floating-point arithmetic.
+* Inputs and outputs are **z-score standardised**. Reported allocations and predicted outcomes are expressed in **standard deviation units** relative to the dataset used in each run.
+* The mapping is evaluated as an **associational, same-year** specification on a short annual series; results should be interpreted as **conditional scenario outputs**.
 
-- Executa 1.000 trials (seed=42) e retorna os parâmetros da melhor alocação.
+## Licences
 
-- Salva best_allocation.csv e graphs/optimized_allocation.png.
+* `LICENSE` — code
+* `LICENSE-DATA` — data
 
-- Imprime as previsões (PIB, inflação, Gini) para a solução ótima.
+## Zenodo release
 
-- Produz os mesmos artefatos (best_allocation.csv, optimized_allocation.png) e imprime as previsões da melhor alocação.
+Use the Zenodo DOI associated with the GitHub release version recorded for this repository.
 
-
-
-**ℹ️ Observação: todos os valores usados pelo modelo estão padronizados (z-score), o que significa que resultados e alocações são reportados em desvios-padrão relativamente às distribuições históricas.**
+```
+::contentReference[oaicite:0]{index=0}
+```
