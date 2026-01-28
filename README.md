@@ -1,4 +1,3 @@
-```markdown
 # Smart Budgeting (Brazil) — Hybrid AI workflow for exploratory budget allocation
 
 This repository implements a **prediction → optimisation** workflow to support **exploratory scenario analysis** for Brazilian federal budget allocation using public, aggregated data. It is designed to **compare allocation scenarios under explicit modelling assumptions** (it does not automate decisions and it does not provide causal or prescriptive recommendations).
@@ -24,6 +23,8 @@ score = (GDP) - (inflation) - (Gini) - penalty
 - Outputs the best allocation found and a figure for the optimised scenario.
 
 ## Repository structure
+
+
 
 ```
 
